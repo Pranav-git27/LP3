@@ -1,0 +1,71 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def objective_function(x):
+    return (x + 3) ** 2
+
+def gradient(x):
+    return 2 * (x + 3)
+
+
+
+
+
+
+starting_x = 2.0
+learning_rate = 0.1
+iterations = 50
+tolerance = 1e-6
+
+x = starting_x
+x_history = [x]
+y_history = [objective_function(x)]
+
+print(f"Starting at x = {x}, y = {objective_function(x):.4f}\n")
+
+for i in range(iterations):
+    grad = gradient(x)
+    new_x = x - learning_rate * grad
+    
+    x_history.append(new_x)
+    y_history.append(objective_function(new_x))
+    
+    if (i + 1) % 5 == 0 or i == 0:
+        print(f"Iteration {i+1:2d}: x = {new_x:.6f}, y = {objective_function(new_x):.6f}")
+        
+    if abs(new_x - x) < tolerance:
+        print(f"\nConverged early at iteration {i+1}!")
+        break
+        
+    x = new_x
+
+print(f"\nFinal Local Minima occurs at x = {x:.6f}")
+print(f"Minimum value of the function y = {objective_function(x):.6f}")
+
+
+
+x_curve = np.linspace(-6, 3, 200)
+y_curve = objective_function(x_curve)
+
+plt.figure(figsize=(10, 6))
+
+# Plot smooth function curve
+plt.plot(x_curve, y_curve, 'b', label=r'$y = (x+3)^2$')
+
+# Plot steps taken by gradient descent
+plt.scatter(x_history, y_history, color='red', label='Gradient Descent Steps', zorder=3, alpha=0.6)
+plt.plot(x_history, y_history, color='red', linestyle='--', alpha=0.7)
+
+# Mark start point and final minima
+plt.plot(starting_x, objective_function(starting_x), 'go', markersize=10, label=f'Start (x={starting_x})')
+plt.plot(x, objective_function(x), 'ko', markersize=10, label=f'Minima (x={x:.2f})')
+
+plt.title('Gradient Descent Convergence Path')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+

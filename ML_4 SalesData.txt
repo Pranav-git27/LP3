@@ -1,0 +1,77 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+
+# 'unicode_escape' or 'latin1' handles non-UTF characters in sales_data_sample.csv
+df = pd.read_csv('sales_data_sample.csv', encoding='unicode_escape')
+print("Dataset Dimensions:", df.shape)
+
+# Select relevant numeric features for segmentation
+X = df[['QUANTITYORDERED', 'SALES']]
+
+# Scale features (K-Means relies on Euclidean distance)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+print("Data scaled successfully. Features Shape:", X_scaled.shape)
+
+wcss = []
+
+for k in range(1, 11):
+    kmeans = KMeans(n_clusters=k, init='k-means++', random_state=42, n_init=10)
+    kmeans.fit(X_scaled)
+    wcss.append(kmeans.inertia_)
+
+plt.figure(figsize=(8, 4))
+plt.plot(range(1, 11), wcss, marker='o', linestyle='--', color='darkblue')
+plt.title('The Elbow Method to Find Optimal K')
+plt.xlabel('Number of Clusters (K)')
+plt.ylabel('WCSS (Inertia)')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+optimal_k = 3
+
+kmeans = KMeans(n_clusters=optimal_k, init='k-means++', random_state=42, n_init=10)
+df['Cluster'] = kmeans.fit_predict(X_scaled)
+
+print("Cluster Counts:\n", df['Cluster'].value_counts())
+print("\n--- Cluster Profiles (Mean Values) ---")
+print(df.groupby('Cluster')[['QUANTITYORDERED', 'SALES']].mean())
+
+plt.figure(figsize=(9, 5))
+
+# Scatter plot of data points
+sns.scatterplot(
+    x=df['QUANTITYORDERED'],
+    y=df['SALES'],
+    hue=df['Cluster'],
+    palette='viridis',
+    s=50,
+    alpha=0.8
+)
+
+# Inverse transform centroids back to original units for plotting
+centroids = scaler.inverse_transform(kmeans.cluster_centers_)
+
+plt.scatter(
+    centroids[:, 0],
+    centroids[:, 1],
+    s=200,
+    color='red',
+    marker='X',
+    label='Centroids'
+)
+
+plt.title(f'K-Means Clustering Result (K={optimal_k})')
+plt.xlabel('Quantity Ordered')
+plt.ylabel('Sales Amount')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()

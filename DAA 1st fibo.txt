@@ -1,0 +1,34 @@
+# DAA-1: Fibonacci using Recursive and Non-Recursive methods
+
+def fibonacci_recursive(n):
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+
+def fibonacci_non_recursive(n):
+    a, b = 0, 1
+    for _ in range(n):
+        print(a, end=" ")
+        a, b = b, a + b
+    print()
+
+# Driver Code
+print("===== Fibonacci Series =====")
+print("1. Recursive Approach")
+print("2. Non-Recursive Approach")
+
+choice = int(input("Enter choice (1/2): "))
+n = int(input("Enter number of terms: "))
+
+if n <= 0:
+    print("Please enter a positive integer.")
+elif choice == 1:
+    print(f"Fibonacci Series (Recursive, {n} terms):")
+    for i in range(n):
+        print(fibonacci_recursive(i), end=" ")
+    print()
+elif choice == 2:
+    print(f"Fibonacci Series (Non-Recursive, {n} terms):")
+    fibonacci_non_recursive(n)
+else:
+    print("Invalid choice!")
